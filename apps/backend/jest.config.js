@@ -1,16 +1,13 @@
 module.exports = {
+  preset: 'ts-jest',
   testEnvironment: 'node',
-  coverageDirectory: 'coverage',
-  collectCoverageFrom: [
-    '**/*.js',
-    '!**/node_modules/**',
-    '!**/coverage/**',
-    '!jest.config.js'
-  ],
   testMatch: [
-    '**/tests/**/*.test.js'
+    '**/tests/**/*.test.ts'
   ],
-  setupFilesAfterEnv: ['<rootDir>/tests/setup.js'],
+  setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
   testTimeout: 30000,
-  verbose: true
+  verbose: true,
+  moduleNameMapper: {
+    '^@puppeteer-service/shared$': '<rootDir>/../../packages/shared/src/index.ts'
+  }
 };

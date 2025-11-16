@@ -1,6 +1,6 @@
-const request = require('supertest');
-const app = require('../server');
-const { closeBrowser } = require('../puppeteer-service');
+import request from 'supertest';
+import app from '../src/server';
+import { closeBrowser } from '../src/puppeteer-service';
 
 describe('Express Server API', () => {
   afterAll(async () => {
@@ -17,7 +17,7 @@ describe('Express Server API', () => {
     const response = await request(app)
       .post('/api/screenshot')
       .send({ url: 'https://example.com', fullPage: true });
-    
+
     expect(response.status).toBe(200);
     expect(response.body.success).toBe(true);
     expect(response.body).toHaveProperty('screenshot');
@@ -27,7 +27,7 @@ describe('Express Server API', () => {
     const response = await request(app)
       .post('/api/screenshot')
       .send({});
-    
+
     expect(response.status).toBe(400);
     expect(response.body.success).toBe(false);
   });

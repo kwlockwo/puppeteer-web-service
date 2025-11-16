@@ -1,12 +1,10 @@
-const {
+import {
   initBrowser,
   closeBrowser,
   screenshot,
   generatePDF,
-  scrapeData,
-  getPageInfo,
-  extractText
-} = require('../puppeteer-service');
+  scrapeData
+} from '../src/puppeteer-service';
 
 describe('Puppeteer Service', () => {
   beforeAll(async () => {
@@ -35,7 +33,8 @@ describe('Puppeteer Service', () => {
   describe('PDF Generation', () => {
     test('should generate PDF', async () => {
       const result = await generatePDF('https://example.com');
-      expect(result).toBeInstanceOf(Buffer);
+      expect(result).toBeInstanceOf(Uint8Array);
+      expect(result.length).toBeGreaterThan(0);
     });
   });
 
