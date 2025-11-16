@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import Header from './components/common/Header';
 import TabNavigation from './components/common/TabNavigation';
 import URLInput from './components/common/URLInput';
@@ -7,29 +7,30 @@ import ErrorDisplay from './components/common/ErrorDisplay';
 import SetupInstructions from './components/common/SetupInstructions';
 import ResultsContainer from './components/results/ResultsContainer';
 import api from './services/api';
+import type { TabType, APIResult } from './types';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('screenshot');
-  const [url, setUrl] = useState('https://example.com');
-  const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState(null);
-  const [error, setError] = useState(null);
+  const [activeTab, setActiveTab] = useState<TabType>('screenshot');
+  const [url, setUrl] = useState<string>('https://example.com');
+  const [loading, setLoading] = useState<boolean>(false);
+  const [result, setResult] = useState<APIResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  const callAPI = async (apiFunction) => {
+  const callAPI = async (apiFunction: () => Promise<APIResult>) => {
     setLoading(true);
     setError(null);
     setResult(null);
 
     try {
       const data = await apiFunction();
-      
+
       if (data.success) {
         setResult(data);
       } else {
         setError(data.error || 'An error occurred');
       }
     } catch (err) {
-      setError(err.message);
+      setError(err instanceof Error ? err.message : 'An unknown error occurred');
     } finally {
       setLoading(false);
     }
@@ -50,9 +51,9 @@ export default function App() {
       <div className="max-w-5xl mx-auto">
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
           <Header />
-          
-          <TabNavigation 
-            activeTab={activeTab} 
+
+          <TabNavigation
+            activeTab={activeTab}
             setActiveTab={setActiveTab}
             onTabChange={handleTabChange}
           />

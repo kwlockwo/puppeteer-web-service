@@ -1,6 +1,10 @@
-import React from 'react';
 
-export default function URLInput({ url, setUrl }) {
+interface URLInputProps {
+  url: string;
+  setUrl: (url: string) => void;
+}
+
+export default function URLInput({ url, setUrl }: URLInputProps) {
   return (
     <div className="mb-6">
       <label className="block text-sm font-medium text-gray-700 mb-2">

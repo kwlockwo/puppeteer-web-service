@@ -1,14 +1,18 @@
-import React from 'react';
+import type { ScrapedData } from '../../types';
 
-export default function ScrapedDataResult({ data }) {
+interface ScrapedDataResultProps {
+  data: ScrapedData;
+}
+
+export default function ScrapedDataResult({ data }: ScrapedDataResultProps) {
   return (
     <div className="space-y-4">
       <div>
         <h4 className="font-semibold text-gray-700 mb-2">Title</h4>
         <p className="text-gray-600">{data.title}</p>
       </div>
-      
-      {data.headings?.length > 0 && (
+
+      {data.headings && data.headings.length > 0 && (
         <div>
           <h4 className="font-semibold text-gray-700 mb-2">Headings</h4>
           <ul className="space-y-1">
@@ -21,7 +25,7 @@ export default function ScrapedDataResult({ data }) {
         </div>
       )}
 
-      {data.links?.length > 0 && (
+      {data.links && data.links.length > 0 && (
         <div>
           <h4 className="font-semibold text-gray-700 mb-2">Links (Top 10)</h4>
           <ul className="space-y-1">

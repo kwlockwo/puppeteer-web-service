@@ -3,10 +3,15 @@
   "version": "1.0.0",
   "private": true,
   "description": "Shared types and utilities",
-  "main": "index.js",
-  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
     "test": "echo \"No tests for shared package yet\"",
-    "clean": "rm -rf node_modules"
+    "clean": "rm -rf node_modules dist"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2"
   }
 }

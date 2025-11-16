@@ -1,14 +1,15 @@
-const puppeteer = require('puppeteer');
+import puppeteer, { Browser, Page } from 'puppeteer';
 
-let browser = null;
-let defaultOptions = {
+let browser: Browser | null = null;
+let defaultOptions: any = {
   headless: true,
-  defaultTimeout: 30000,
   defaultViewport: { width: 1920, height: 1080 },
   args: ['--no-sandbox', '--disable-setuid-sandbox']
 };
 
-async function initBrowser(options = {}) {
+const defaultTimeout = 30000;
+
+export async function initBrowser(options: any = {}): Promise<Browser> {
   if (!browser) {
     const launchOptions = { ...defaultOptions, ...options };
     browser = await puppeteer.launch(launchOptions);
@@ -16,130 +17,162 @@ async function initBrowser(options = {}) {
   return browser;
 }
 
-async function closeBrowser() {
+export async function closeBrowser(): Promise<void> {
   if (browser) {
     await browser.close();
     browser = null;
   }
 }
 
-async function createNewPage() {
+export async function createNewPage(): Promise<Page> {
   const browserInstance = await initBrowser();
   const page = await browserInstance.newPage();
-  await page.setDefaultTimeout(defaultOptions.defaultTimeout);
+  await page.setDefaultTimeout(defaultTimeout);
   return page;
 }
 
-async function screenshot(url, options = {}) {
+interface ScreenshotOptions {
+  fullPage?: boolean;
+  path?: string;
+  type?: 'png' | 'jpeg' | 'webp';
+  waitForSelector?: string;
+}
+
+export async function screenshot(url: string, options: ScreenshotOptions = {}): Promise<any> {
   const page = await createNewPage();
   try {
     await page.goto(url, { waitUntil: 'networkidle2' });
-    
+
     if (options.waitForSelector) {
       await page.waitForSelector(options.waitForSelector);
     }
-    
+
     const screenshot = await page.screenshot({
       fullPage: options.fullPage || false,
-      path: options.path,
+      path: (options.path as any),
       type: options.type || 'png'
     });
-    
-    return screenshot;
+
+    return Buffer.from(screenshot);
   } finally {
     await page.close();
   }
 }
 
-async function generatePDF(url, options = {}) {
+interface PDFOptions {
+  path?: string;
+  format?: string;
+  printBackground?: boolean;
+  margin?: { top: string; right: string; bottom: string; left: string };
+  waitForSelector?: string;
+}
+
+export async function generatePDF(url: string, options: PDFOptions = {}): Promise<any> {
   const page = await createNewPage();
   try {
     await page.goto(url, { waitUntil: 'networkidle2' });
-    
+
     if (options.waitForSelector) {
       await page.waitForSelector(options.waitForSelector);
     }
-    
+
     const pdf = await page.pdf({
-      path: options.path,
-      format: options.format || 'A4',
+      path: (options.path as any),
+      format: (options.format as any) || 'A4',
       printBackground: options.printBackground !== false,
       margin: options.margin || { top: '20px', right: '20px', bottom: '20px', left: '20px' }
     });
-    
+
     return pdf;
   } finally {
     await page.close();
   }
 }
 
-async function scrapeData(url, scraperFunction) {
+export async function scrapeData<T = any>(url: string, scraperFunction: string | ((...args: any[]) => T)): Promise<T> {
   const page = await createNewPage();
   try {
     await page.goto(url, { waitUntil: 'networkidle2' });
-    const data = await page.evaluate(scraperFunction);
+    const data = await page.evaluate(scraperFunction as any);
     return data;
   } finally {
     await page.close();
   }
 }
 
-async function fillForm(url, formData, submitSelector) {
+export async function fillForm(
+  url: string,
+  formData: Record<string, string>,
+  submitSelector?: string
+): Promise<{ success: boolean; url?: string; error?: string }> {
   const page = await createNewPage();
   try {
     await page.goto(url, { waitUntil: 'networkidle2' });
-    
+
     for (const [selector, value] of Object.entries(formData)) {
       await page.waitForSelector(selector);
       await page.type(selector, value);
     }
-    
+
     if (submitSelector) {
       await Promise.all([
         page.waitForNavigation({ waitUntil: 'networkidle2' }),
         page.click(submitSelector)
       ]);
     }
-    
+
     return { success: true, url: page.url() };
   } catch (err) {
-    return { success: false, error: err.message };
+    return { success: false, error: err instanceof Error ? err.message : 'Unknown error' };
   } finally {
     await page.close();
   }
 }
 
-async function extractText(url, selector) {
+export async function extractText(url: string, selector: string): Promise<string> {
   const page = await createNewPage();
   try {
     await page.goto(url, { waitUntil: 'networkidle2' });
     await page.waitForSelector(selector);
-    const text = await page.$eval(selector, el => el.textContent.trim());
+    const text = await page.$eval(selector, (el) => el.textContent?.trim() || '');
     return text;
   } finally {
     await page.close();
   }
 }
 
-async function waitForElement(url, selector, options = {}) {
+interface WaitOptions {
+  timeout?: number;
+  visible?: boolean;
+}
+
+export async function waitForElement(
+  url: string,
+  selector: string,
+  options: WaitOptions = {}
+): Promise<{ found: boolean; error?: string }> {
   const page = await createNewPage();
   try {
     await page.goto(url, { waitUntil: 'networkidle2' });
-    
+
     await page.waitForSelector(selector, {
-      timeout: options.timeout || defaultOptions.defaultTimeout,
+      timeout: options.timeout || defaultTimeout,
       visible: options.visible !== false
     });
-    
+
     return { found: true };
   } catch (err) {
-    return { found: false, error: err.message };
+    return { found: false, error: err instanceof Error ? err.message : 'Unknown error' };
   } finally {
     await page.close();
   }
 }
 
-async function executeScript(url, scriptFunction, ...args) {
+export async function executeScript<T = unknown>(
+  url: string,
+  scriptFunction: (...args: unknown[]) => T,
+  ...args: unknown[]
+): Promise<T> {
   const page = await createNewPage();
   try {
     await page.goto(url, { waitUntil: 'networkidle2' });
@@ -150,65 +183,59 @@ async function executeScript(url, scriptFunction, ...args) {
   }
 }
 
-async function clickAndWait(url, selector, options = {}) {
+interface ClickOptions {
+  waitUntil?: 'load' | 'domcontentloaded' | 'networkidle0' | 'networkidle2';
+}
+
+export async function clickAndWait(
+  url: string,
+  selector: string,
+  options: ClickOptions = {}
+): Promise<{ success: boolean; url?: string; error?: string }> {
   const page = await createNewPage();
   try {
     await page.goto(url, { waitUntil: 'networkidle2' });
     await page.waitForSelector(selector);
-    
+
     await Promise.all([
       page.waitForNavigation({ waitUntil: options.waitUntil || 'networkidle2' }),
       page.click(selector)
     ]);
-    
+
     return { success: true, url: page.url() };
   } catch (err) {
-    return { success: false, error: err.message };
+    return { success: false, error: err instanceof Error ? err.message : 'Unknown error' };
   } finally {
     await page.close();
   }
 }
 
-async function getPageInfo(url) {
+export async function getPageInfo(url: string) {
   const page = await createNewPage();
   try {
     await page.goto(url, { waitUntil: 'networkidle2' });
-    
-    const info = await page.evaluate(() => ({
-      title: document.title,
-      url: window.location.href,
-      metaDescription: document.querySelector('meta[name="description"]')?.content || '',
-      headings: Array.from(document.querySelectorAll('h1, h2, h3')).map(h => ({
-        tag: h.tagName,
-        text: h.textContent.trim()
-      }))
-    }));
-    
+
+    const info = await page.evaluate(() => {
+      return {
+        title: document.title,
+        url: window.location.href,
+        metaDescription: document.querySelector('meta[name="description"]')?.getAttribute('content') || '',
+        headings: Array.from(document.querySelectorAll('h1, h2, h3')).map((h) => ({
+          tag: h.tagName,
+          text: h.textContent?.trim() || ''
+        }))
+      };
+    });
+
     return info;
   } finally {
     await page.close();
   }
 }
 
-function setDefaultOptions(options) {
+export function setDefaultOptions(options: any): void {
   defaultOptions = { ...defaultOptions, ...options };
 }
-
-module.exports = {
-  initBrowser,
-  closeBrowser,
-  createNewPage,
-  screenshot,
-  generatePDF,
-  scrapeData,
-  fillForm,
-  extractText,
-  waitForElement,
-  executeScript,
-  clickAndWait,
-  getPageInfo,
-  setDefaultOptions
-};
 
 process.on('SIGINT', async () => {
   await closeBrowser();

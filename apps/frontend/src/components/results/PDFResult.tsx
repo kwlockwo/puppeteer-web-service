@@ -1,7 +1,10 @@
-import React from 'react';
 import { FileText, Download } from 'lucide-react';
 
-export default function PDFResult({ pdf }) {
+interface PDFResultProps {
+  pdf: string;
+}
+
+export default function PDFResult({ pdf }: PDFResultProps) {
   const downloadPDF = () => {
     const blob = new Blob(
       [Uint8Array.from(atob(pdf), c => c.charCodeAt(0))],

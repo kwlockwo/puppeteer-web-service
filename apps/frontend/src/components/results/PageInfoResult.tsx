@@ -1,13 +1,17 @@
-import React from 'react';
+import type { PageInfoData } from '../../types';
 
-export default function PageInfoResult({ info }) {
+interface PageInfoResultProps {
+  info: PageInfoData;
+}
+
+export default function PageInfoResult({ info }: PageInfoResultProps) {
   return (
     <div className="space-y-4">
       <div>
         <h4 className="font-semibold text-gray-700 mb-2">Title</h4>
         <p className="text-gray-600">{info.title}</p>
       </div>
-      
+
       <div>
         <h4 className="font-semibold text-gray-700 mb-2">URL</h4>
         <p className="text-blue-600 break-all">{info.url}</p>
@@ -20,7 +24,7 @@ export default function PageInfoResult({ info }) {
         </div>
       )}
 
-      {info.headings?.length > 0 && (
+      {info.headings && info.headings.length > 0 && (
         <div>
           <h4 className="font-semibold text-gray-700 mb-2">Page Structure</h4>
           <ul className="space-y-1">

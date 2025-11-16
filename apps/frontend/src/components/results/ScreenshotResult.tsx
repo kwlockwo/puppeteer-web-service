@@ -1,7 +1,10 @@
-import React from 'react';
 import { Download } from 'lucide-react';
 
-export default function ScreenshotResult({ screenshot }) {
+interface ScreenshotResultProps {
+  screenshot: string;
+}
+
+export default function ScreenshotResult({ screenshot }: ScreenshotResultProps) {
   const downloadScreenshot = () => {
     const blob = new Blob(
       [Uint8Array.from(atob(screenshot), c => c.charCodeAt(0))],

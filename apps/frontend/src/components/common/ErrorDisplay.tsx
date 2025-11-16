@@ -1,6 +1,9 @@
-import React from 'react';
 
-export default function ErrorDisplay({ error }) {
+interface ErrorDisplayProps {
+  error: string | null;
+}
+
+export default function ErrorDisplay({ error }: ErrorDisplayProps) {
   if (!error) return null;
 
   return (

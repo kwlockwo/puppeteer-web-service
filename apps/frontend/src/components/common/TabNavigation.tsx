@@ -1,8 +1,20 @@
-import React from 'react';
-import { FileText, Search, Image, Info } from 'lucide-react';
+import { FileText, Search, Image, Info, LucideIcon } from 'lucide-react';
+import type { TabType } from '../../types';
 
-export default function TabNavigation({ activeTab, setActiveTab, onTabChange }) {
-  const tabs = [
+interface Tab {
+  id: TabType;
+  label: string;
+  icon: LucideIcon;
+}
+
+interface TabNavigationProps {
+  activeTab: TabType;
+  setActiveTab: (tab: TabType) => void;
+  onTabChange: () => void;
+}
+
+export default function TabNavigation({ activeTab, setActiveTab, onTabChange }: TabNavigationProps) {
+  const tabs: Tab[] = [
     { id: 'screenshot', label: 'Screenshot', icon: Image },
     { id: 'pdf', label: 'PDF', icon: FileText },
     { id: 'scrape', label: 'Scrape Data', icon: Search },

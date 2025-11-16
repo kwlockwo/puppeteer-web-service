@@ -17,8 +17,16 @@
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\""
   },
   "devDependencies": {
-    "turbo": "^1.11.2",
+    "turbo": "^2.0.0",
     "prettier": "^3.1.1"
+  },
+  "overrides": {
+    "js-yaml": "^4.1.1",
+    "glob": "^11.0.0",
+    "rimraf": "^6.0.0",
+    "inflight": "npm:@humanfs/inflight@^1.0.0",
+    "@humanwhocodes/config-array": "npm:@eslint/config-array@^0.19.0",
+    "@humanwhocodes/object-schema": "npm:@eslint/object-schema@^2.1.4"
   },
   "engines": {
     "node": ">=18.0.0",

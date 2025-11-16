@@ -1,7 +1,16 @@
-import React from 'react';
 
-export default function ActionButton({ onClick, loading, disabled, color, children }) {
-  const colorClasses = {
+type ColorType = 'blue' | 'purple' | 'green' | 'orange';
+
+interface ActionButtonProps {
+  onClick: () => void;
+  loading: boolean;
+  disabled?: boolean;
+  color: ColorType;
+  children: React.ReactNode;
+}
+
+export default function ActionButton({ onClick, loading, disabled, color, children }: ActionButtonProps) {
+  const colorClasses: Record<ColorType, string> = {
     blue: 'bg-blue-600 hover:bg-blue-700',
     purple: 'bg-purple-600 hover:bg-purple-700',
     green: 'bg-green-600 hover:bg-green-700',
